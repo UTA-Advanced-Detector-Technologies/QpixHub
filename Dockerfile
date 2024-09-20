@@ -55,7 +55,6 @@ RUN apt-get install -y gawk
 ##### Unpack and build dependencies first ####
 ##############################################
 COPY Dependencies/* /home/dependencies
-# COPY source /usr/home/source
 
 ######################
 ##### build gsl ######
@@ -95,41 +94,56 @@ RUN cd /home/dependencies \
 ####################
 ### build GENIE ####
 ####################
+RUN apt-get install -y wget
+RUN mkdir /home/dependencies/pythia
+RUN mv /home/dependencies/pythia6.f /home/dependencies/pythia/pythia6.f
 RUN cd /home/dependencies \
- && git clone https://github.com/UTA-Advanced-Detector-Technologies/Generator.git /home/dependencies/GenieGenerator \
- && cd GenieGenerator \
- && cmake /home/cern/root \
-	-Dall=ON \
-	-DCMAKE_INSTALL_PREFIX=/home/cern/root_install \
- && cmake3 --build . -- -j$(nproc) \
- && cmake3 --build . --target install \
- && rm -rf /home/cern/root_build
-
-#
+ && git clone --branch R-3_02_00 https://github.com/Q-Pix/Generator /home/dependencies/GenieGenerator
+RUN cd /home/dependencies/pythia/ \
+ && /bin/bash /home/dependencies/GenieGenerator/src/scripts/build/ext/build_pythia6.sh
+ 
 # get access to root and geant4
 ###############################
 #####   build CERN ROOT  ######
 ###############################
-# RUN mkdir /home/cern/root_build
-# RUN mkdir /home/cern/root_install
-# RUN cd /home/ \
-#  && git clone https://github.com/root-project/root /home/cern/root \
-#  && cmake /home/cern/root \
-# 	-Dall=ON \
-# 	-DCMAKE_INSTALL_PREFIX=/home/cern/root_install \
-#  && cmake3 --build . -- -j$(nproc) \
-#  && cmake3 --build . --target install \
-#  && rm -rf /home/cern/root_build
+RUN mkdir /home/cern/root_build
+RUN mkdir /home/cern/root_install
+## NOTE 6-32 REMOVES support for Pythia6!
+RUN git clone --branch v6-30-00-patches https://github.com/root-project/root.git /home/cern/root
+RUN cd /home/cern/root_build \
+ && cmake /home/cern/root \
+	-Dall=ON \
+	-Dbuiltin_xrootd=OFF \
+	-Dxrootd=OFF \
+	-Dpythia6=ON \
+	-DPYTHIA6_LIBRARY=/home/dependencies/pythia/v6_428/lib/libPythia6.so \
+	-DCMAKE_INSTALL_PREFIX=/home/cern/root_install \
+ && cmake --build . --target install -j12 \
+ && rm -rf /home/cern/root_build
+# RUN /bin/bash /home/cern/root_install/bin/this_root.sh
 
 ###############################
 #####     build Geant4   ######
 ###############################
-# RUN git clone https://github.com/Geant4/geant4.git /home/cern/geant4
+RUN mkdir /home/cern/geant4_build
+RUN mkdir /home/cern/geant4_install
+RUN git clone --branch geant4-10.7-release https://github.com/Geant4/geant4.git /home/cern/geant4
+# RUN cd /home/cern/geant4_build \
+#  && cmake /home/cern/geant4 \
+# 	-Dall=ON \
+# 	-DPYTHIA6_LIBRARY=/home/dependencies/pythia/v6_428/lib/libPythia6.so \
+# 	-DCMAKE_INSTALL_PREFIX=/home/cern/geant4_install \
+#  && cmake --build . --target install -j8 \
+#  && rm -rf /home/cern/geant4_build
+# RUN /bin/bash /home/cern/geant4_install/bin/this_geant4.sh
 
 ###########################################
 #####   Setting Environs Correctly   ######
 ###########################################
 # ENV PYTHONPATH /usr/local/lib
+# ENV GENIE=/home/dependencies/GenieGenerator
+# ENV ROOTSYS=/home/cern/root_install/
+# ENV PYTHIA6=/home/dependencies/pythia6/v6_428
 
 ##########################
 #####  Entry Point  ######
