@@ -91,9 +91,9 @@ RUN cd /home/dependencies \
     && make install
 
 
-####################
-### build GENIE ####
-####################
+#####################
+### build Pythia ####
+#####################
 RUN apt-get install -y wget
 RUN mkdir /home/dependencies/pythia
 RUN mv /home/dependencies/pythia6.f /home/dependencies/pythia/pythia6.f
@@ -102,22 +102,22 @@ RUN cd /home/dependencies \
 RUN cd /home/dependencies/pythia/ \
  && /bin/bash /home/dependencies/GenieGenerator/src/scripts/build/ext/build_pythia6.sh
  
-# get access to root and geant4
 ###############################
 #####   build CERN ROOT  ######
 ###############################
 RUN mkdir /home/cern/root_build
 RUN mkdir /home/cern/root_install
-## NOTE 6-32 REMOVES support for Pythia6!
+## NOTE ROOT Version 6.32 REMOVES support for Pythia6!
 RUN git clone --branch v6-30-00-patches https://github.com/root-project/root.git /home/cern/root
 RUN cd /home/cern/root_build \
  && cmake /home/cern/root \
 	-Dbuiltin_xrootd=OFF \
 	-Dxrootd=OFF \
 	-Dpythia6=ON \
+    -Dbuiltin_gsl=ON\
+    -Dmathmore=ON\
 	-DPYTHIA6_LIBRARY=/home/dependencies/pythia/v6_428/lib/libPythia6.so \
 	-DCMAKE_INSTALL_PREFIX=/home/cern/root_install
-# cmake /home/cern/root 	-Dbuiltin_xrootd=OFF -Dxrootd=OFF 	-Dpythia6=ON 	-DPYTHIA6_LIBRARY=/home/dependencies/pythia/v6_428/lib/libPythia6.so 	-DCMAKE_INSTALL_PREFIX=/home/cern/root_install
 RUN cd /home/cern/root_build \
  && cmake --build . --target install -j 12 
 RUN rm -rf /home/cern/root_build
@@ -151,19 +151,53 @@ RUN cd /home/cern/geant4_build \
  && cmake --build . --target install -j 12
 RUN rm -rf /home/cern/geant4_build
 
-# cmake /home/cern/geant4 -DCMAKE_INSTALL_PREFIX=/home/cern/geant4_install -DGEANT4_INSTALL_DATA=ON -DGEANT4_USE_GDML=ON -DGEANT4_USE_QT=ON -DGEANT4_USE_RAYTRACER_X11=ON -DGEANT4_USE_OPENGL_X11=ON -DGEANT4_BUILD_MULTITHREADED=ON
-
 ###########################################
 #####   Setting Environs Correctly   ######
 ###########################################
-ENV PYTHONPATH /usr/local/lib
+ENV PYTHONPATH=/usr/local/lib
 ENV GENIE=/home/dependencies/GenieGenerator
 ENV ROOTSYS=/home/cern/root_install/
 ENV PYTHIA6=/home/dependencies/pythia6/v6_428
+ENV LD_LIBRARY_PATH=/home/cern/root_install/lib:/home/dependencies/GenieGenerator/lib:/home/dependencies/pythia6/v6_428/lib:/home/dependencies/Library
+ENV DYLD_LIBRARY_PATH=/home/cern/root_install/lib
+ENV LHAPATH=/home/dependencies/GenieGenerator/data/evgen/pdfs
 
-# CMD ["/bin/sh", "/home/cern/root_install/bin/thisroot.sh"]
+## GENIE is an absolute GOD tier PoS software.
+## Therefore, we need to coddle "software" to build
+####################
+### build GENIE ####
+####################
+RUN cd /home/dependencies/GenieGenerator && ./configure \
+    --enable-fnal\
+    --enable-nucleon-decay\
+    --enable-atmo\
+    --enable-test\
+    --disable-lhapdf5\
+    --enable-lhapdf6\
+    --enable-gfortran\
+    --with-pythia6-lib=/home/dependencies/pythia/v6_428/lib\
+    --with-lhapdf6-inc=/home/dependencies/Library/include\
+    --with-lhapdf6-lib=/home/dependencies/Library/lib\
+    --with-log4cpp-inc=/usr/local/include/\
+    --with-log4cpp-lib=/usr/local/lib/\
+    --with-libxml2-inc=/usr/include/libxml2\
+    --with-libxml2-lib=/usr/lib/x86_64-linux-gnu/
+ENV PATH "$PATH:home/cern/root_install/bin"
+RUN cd /home/dependencies/GenieGenerator && make -j 12
+
+# ./configure --enable-fnal --enable-nucleon-decay --enable-atmo --enable-test --disaable-lhapdf5 --enable-lhapdf6 --enable-gfortran --with-pythia6-lib=/home/dependencies/pythia/v6_428/lib --with-lhapdf6-inc=/home/dependencies/LHAPDF-6.5.4/include --with-lhapdf6-lib=/home/dependencies/LHAPDF-6.5.4/lib --with-log4cpp-inc=/usr/local/include/ --with-log4cpp-lib=/usr/local/lib/ --with-libxml2-inc=/usr/include/libxml2 --with-libxml2-lib=/usr/lib/x86_64-linux-gnu
+
+#####################
+### build MARLEY ####
+#####################
+RUN git clone https://github.com/MARLEY-MC/marley.git /home/dependencies/marley
+# particular coddling for marley
+ENV CPLUS_INCLUDE_PATH=/home/dependencies/marley/include
+ENV LIBRARY_PATH=/home/dependencies/marley/build
+RUN cd /home/dependencies/marley/build && make all
 
 ##########################
 #####  Entry Point  ######
 ##########################
 # CMD [ "/bin/sh" ]
+# CMD ["/bin/sh", "/home/cern/root_install/bin/thisroot.sh"]
