@@ -112,15 +112,15 @@ RUN mkdir /home/cern/root_install
 RUN git clone --branch v6-30-00-patches https://github.com/root-project/root.git /home/cern/root
 RUN cd /home/cern/root_build \
  && cmake /home/cern/root \
-	-Dall=ON \
 	-Dbuiltin_xrootd=OFF \
 	-Dxrootd=OFF \
 	-Dpythia6=ON \
 	-DPYTHIA6_LIBRARY=/home/dependencies/pythia/v6_428/lib/libPythia6.so \
-	-DCMAKE_INSTALL_PREFIX=/home/cern/root_install \
- && cmake --build . --target install -j12 \
- && rm -rf /home/cern/root_build
-# RUN /bin/bash /home/cern/root_install/bin/this_root.sh
+	-DCMAKE_INSTALL_PREFIX=/home/cern/root_install
+# cmake /home/cern/root 	-Dbuiltin_xrootd=OFF -Dxrootd=OFF 	-Dpythia6=ON 	-DPYTHIA6_LIBRARY=/home/dependencies/pythia/v6_428/lib/libPythia6.so 	-DCMAKE_INSTALL_PREFIX=/home/cern/root_install
+RUN cd /home/cern/root_build \
+ && cmake --build . --target install -j 12 
+RUN rm -rf /home/cern/root_build
 
 ###############################
 #####     build Geant4   ######
@@ -128,22 +128,40 @@ RUN cd /home/cern/root_build \
 RUN mkdir /home/cern/geant4_build
 RUN mkdir /home/cern/geant4_install
 RUN git clone --branch geant4-10.7-release https://github.com/Geant4/geant4.git /home/cern/geant4
-# RUN cd /home/cern/geant4_build \
-#  && cmake /home/cern/geant4 \
-# 	-Dall=ON \
-# 	-DPYTHIA6_LIBRARY=/home/dependencies/pythia/v6_428/lib/libPythia6.so \
-# 	-DCMAKE_INSTALL_PREFIX=/home/cern/geant4_install \
-#  && cmake --build . --target install -j8 \
-#  && rm -rf /home/cern/geant4_build
-# RUN /bin/bash /home/cern/geant4_install/bin/this_geant4.sh
+
+RUN apt-get install -y libxmu-dev 
+RUN apt-get install -y libxpm-dev 
+RUN apt-get install -y libxft-dev 
+RUN apt-get install -y libglu1-mesa-dev 
+RUN apt-get install -y libxerces-c-dev 
+RUN apt-get install -y qtbase5-dev 
+RUN apt-get install -y qt5-qmake
+
+RUN cd /home/cern/geant4_build \
+ && cmake /home/cern/geant4 \
+    -DCMAKE_INSTALL_PREFIX=/home/cern/geant4_install\
+    -DGEANT4_INSTALL_DATA=ON\
+    -DGEANT4_BUILD_CXXSTD=17\
+    -DGEANT4_USE_GDML=ON\
+    -DGEANT4_USE_QT=ON\
+    -DGEANT4_USE_RAYTRACER_X11=ON\
+    -DGEANT4_USE_OPENGL_X11=ON\
+    -DGEANT4_BUILD_MULTITHREADED=ON
+RUN cd /home/cern/geant4_build \
+ && cmake --build . --target install -j 12
+RUN rm -rf /home/cern/geant4_build
+
+# cmake /home/cern/geant4 -DCMAKE_INSTALL_PREFIX=/home/cern/geant4_install -DGEANT4_INSTALL_DATA=ON -DGEANT4_USE_GDML=ON -DGEANT4_USE_QT=ON -DGEANT4_USE_RAYTRACER_X11=ON -DGEANT4_USE_OPENGL_X11=ON -DGEANT4_BUILD_MULTITHREADED=ON
 
 ###########################################
 #####   Setting Environs Correctly   ######
 ###########################################
-# ENV PYTHONPATH /usr/local/lib
-# ENV GENIE=/home/dependencies/GenieGenerator
-# ENV ROOTSYS=/home/cern/root_install/
-# ENV PYTHIA6=/home/dependencies/pythia6/v6_428
+ENV PYTHONPATH /usr/local/lib
+ENV GENIE=/home/dependencies/GenieGenerator
+ENV ROOTSYS=/home/cern/root_install/
+ENV PYTHIA6=/home/dependencies/pythia6/v6_428
+
+# CMD ["/bin/sh", "/home/cern/root_install/bin/thisroot.sh"]
 
 ##########################
 #####  Entry Point  ######
