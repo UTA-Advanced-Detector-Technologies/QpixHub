@@ -161,6 +161,7 @@ ENV PYTHIA6=/home/dependencies/pythia6/v6_428
 ENV LD_LIBRARY_PATH=/home/cern/root_install/lib:/home/dependencies/GenieGenerator/lib:/home/dependencies/pythia6/v6_428/lib:/home/dependencies/Library
 ENV DYLD_LIBRARY_PATH=/home/cern/root_install/lib
 ENV LHAPATH=/home/dependencies/GenieGenerator/data/evgen/pdfs
+ENV PATH "$PATH:/home/cern/root_install/bin"
 
 ## GENIE is an absolute GOD tier PoS software.
 ## Therefore, we need to coddle "software" to build
@@ -182,10 +183,7 @@ RUN cd /home/dependencies/GenieGenerator && ./configure \
     --with-log4cpp-lib=/usr/local/lib/\
     --with-libxml2-inc=/usr/include/libxml2\
     --with-libxml2-lib=/usr/lib/x86_64-linux-gnu/
-ENV PATH "$PATH:home/cern/root_install/bin"
 RUN cd /home/dependencies/GenieGenerator && make -j 12
-
-# ./configure --enable-fnal --enable-nucleon-decay --enable-atmo --enable-test --disaable-lhapdf5 --enable-lhapdf6 --enable-gfortran --with-pythia6-lib=/home/dependencies/pythia/v6_428/lib --with-lhapdf6-inc=/home/dependencies/LHAPDF-6.5.4/include --with-lhapdf6-lib=/home/dependencies/LHAPDF-6.5.4/lib --with-log4cpp-inc=/usr/local/include/ --with-log4cpp-lib=/usr/local/lib/ --with-libxml2-inc=/usr/include/libxml2 --with-libxml2-lib=/usr/lib/x86_64-linux-gnu
 
 #####################
 ### build MARLEY ####
