@@ -18,6 +18,27 @@ Qpix neutron analysis applications
 
 ## Getting Started
 
+docker run --rm -it qpixhub
+
+### notebooks
+running to see jupyter:
+docker run -p 80:80
+
+from inside shell run:
+jupyter notebook --ip='0.0.0.0' --port=80 --no-browser --allow-root
+
+### mounting a directory
+
+option: -v
+notes: <source_path>:<dest_path>
+windows exampe: 
+docker run -v ${PWD}/data/:/home/data -it qpixhub
+
+nix example:
+docker run -v $(PWD)/data/:/home/data -it qpixhub
+
+-- run from top level
+
 ## Troubleshooting
 
 ## Dependencies
@@ -26,12 +47,13 @@ Listed below are the dependencies, and their respective versions
 
 
 #### ROOT
-v6.32
+v6.30
 
 #### Geant4
-v10.11
+Geant4-10.7.4
 
 #### Marley
 
 #### GENIE, GSL, libLHAPDFv5, Pythia
+Includied in dependencies or explicitly cloned to specific locations
 
