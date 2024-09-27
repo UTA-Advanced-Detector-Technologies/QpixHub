@@ -5,28 +5,37 @@ ARG DEBIAN_FRONTEND=noninteractive
 ########################
 ### Additional tools ###
 ########################
+RUN apt-get install -y jupyter
+RUN apt-get install -y vim
+RUN apt-get install -y fd-find
+RUN apt-get install -y libboost-all-dev
 
+# move qpix tags to repo
+COPY source/qpixg4 /home/qpix/qpixg4
+COPY source/qpixrtd /home/qpix/qpixrtd
 
+# make sure we have a useful bashrc, before we try building
+RUN echo 'source /home/cern/root_install/bin/thisroot.sh' >> ~/.bashrc
+RUN echo 'source /home/cern/geant4_install/bin/geant4.sh' >> ~/.bashrc
+RUN echo 'source /home/dependencies/marley/setup_marley.sh' >> ~/.bashrc
+
+###############
+#### Build ####
+###############
+SHELL ["/bin/bash", "-c"]
+COPY /source/makeQpix.sh /home/makeQpix.sh
+RUN "/home/makeQpix.sh"
 
 #####################
-### build QpixRTD ###
+### pull qpixrec ####
 #####################
 
-#####################
-### build QpixG4 ####
-#####################
-RUN git clone https://github.com/MARLEY-MC/marley.git /home/dependencies/marley
-# particular coddling for marley
-ENV CPLUS_INCLUDE_PATH=/home/dependencies/marley/include
-ENV LIBRARY_PATH=/home/dependencies/marley/build
-RUN cd /home/dependencies/marley/build && make all
-
-#####################
-### build QpixRTD ###
-#####################
+## TODO - Depends on Geant4.11.1.1
+#######################
+### build QpixOptix ###
+#######################
 
 ##########################
 #####  Entry Point  ######
 ##########################
-# CMD [ "/bin/sh" ]
-# CMD ["/bin/sh", "/home/cern/root_install/bin/thisroot.sh"]
+CMD ["/bin/bash", "-l"]
