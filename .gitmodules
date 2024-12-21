@@ -7,3 +7,6 @@
 [submodule "source/QPixSemiAnalytical"]
 	path = source/QPixSemiAnalytical
 	url = https://github.com/asanchezcastillo/QPixSemiAnalytical.git
+[submodule "extras/globes/snowglobes"]
+	path = extras/globes/snowglobes
+	url = https://github.com/SNOwGLoBES/snowglobes.git
