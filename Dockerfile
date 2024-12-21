@@ -5,14 +5,15 @@ ARG DEBIAN_FRONTEND=noninteractive
 ########################
 ### Additional tools ###
 ########################
-RUN apt-get install -y jupyter
-RUN apt-get install -y vim
-RUN apt-get install -y fd-find
-RUN apt-get install -y libboost-all-dev
+# RUN apt-get install -y jupyter
+# RUN apt-get install -y vim
+# RUN apt-get install -y fd-find
+# RUN apt-get install -y libboost-all-dev
 
 # move qpix tags to repo
 COPY source/qpixg4 /home/qpix/qpixg4
 COPY source/qpixrtd /home/qpix/qpixrtd
+COPY source/QPixSemiAnalytical /home/qpix/QPixSemiAnalytical
 
 # make sure we have a useful bashrc, before we try building
 RUN echo 'source /home/cern/root_install/bin/thisroot.sh' >> ~/.bashrc

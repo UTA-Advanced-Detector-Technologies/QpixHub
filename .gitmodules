@@ -1,0 +1,9 @@
+[submodule "source/qpixg4"]
+	path = source/qpixg4
+	url = https://github.com/Q-Pix/qpixg4.git
+[submodule "source/qpixrtd"]
+	path = source/qpixrtd
+	url = https://github.com/Q-Pix/qpixrtd.git
+[submodule "source/QPixSemiAnalytical"]
+	path = source/QPixSemiAnalytical
+	url = https://github.com/asanchezcastillo/QPixSemiAnalytical.git

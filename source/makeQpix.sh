@@ -9,3 +9,6 @@ cd  /home/qpix/qpixg4/build && cmake .. && cmake --build .
 
 mkdir -p /home/qpix/qpixrtd/build
 cd  /home/qpix/qpixrtd/build && cmake .. && cmake --build .
+
+mkdir -p /home/qpix/QPixSemiAnalytical/build
+cd  /home/qpix/QPixSemiAnalytical/build && cmake .. && cmake --build .
