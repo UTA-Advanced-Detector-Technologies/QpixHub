@@ -8,6 +8,7 @@ services:
       PORT: 8000
     volumes:
       - ./data:/home/data
+      - ./source:/home/qpix
     ports:
       - '80:80'
     stdin_open: true
