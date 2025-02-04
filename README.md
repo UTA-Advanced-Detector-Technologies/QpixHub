@@ -110,4 +110,10 @@ Includied in dependencies or explicitly cloned to specific locations
 
 #### Optix
 TODO
-- must most Geant4 to 4.11.1.1 first
+- must move Geant4 to 4.11.1.1 first
+
+#### run on windows wsl2 to get gui access:
+```bash
+docker run --rm --net host -it -e DISPLAY=:0.0 -v /tmp/.X11-unix:/tmp/.X11-unix papahuhu/qpixana
+```
+note: this is observed working only with x410 xforwarding server on windows.
