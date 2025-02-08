@@ -13,7 +13,7 @@ RUN mkdir /home/dependencies
 ###############################
 # see https://root.cern/install/dependencies/ for details
 RUN apt-get update
-RUN apt-get upgrade
+# RUN apt-get upgrade
 RUN apt-get install -y git
 RUN apt-get install -y cmake
 RUN apt-get install -y binutils
@@ -127,7 +127,8 @@ RUN rm -rf /home/cern/root_build
 ###############################
 RUN mkdir /home/cern/geant4_build
 RUN mkdir /home/cern/geant4_install
-RUN git clone --branch geant4-10.7-release https://github.com/Geant4/geant4.git /home/cern/geant4
+# RUN git clone --branch geant4-10.7-release https://github.com/Geant4/geant4.git /home/cern/geant4
+RUN git clone --branch geant4-11.1-release https://github.com/Geant4/geant4.git /home/cern/geant4
 
 RUN apt-get install -y libxmu-dev 
 RUN apt-get install -y libxpm-dev 
